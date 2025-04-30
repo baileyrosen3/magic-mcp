@@ -3,7 +3,7 @@ import { config } from "./config.js";
 const TWENTY_FIRST_API_KEY =
   config.apiKey || process.env.TWENTY_FIRST_API_KEY || process.env.API_KEY;
 
-const isTesting = false;
+const isTesting = process.env.DEBUG === "true" ? true : false;
 export const BASE_URL = isTesting
   ? "http://localhost:3005"
   : "https://magic.21st.dev";
