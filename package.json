@@ -28,7 +28,7 @@
   "scripts": {
     "build": "tsc && shx cp -r previewer dist/ && shx chmod +x dist/*.js",
     "build:prod": "npm run build && npm run test",
-    "debug": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js",
+    "debug": "npm run build && npx @modelcontextprotocol/inspector node dist/index.js DEBUG=true",
     "start": "node dist/index.js",
     "prepare": "npm run build:prod",
     "dev": "nodemon --watch src --ext ts,json --exec \"npm run build\"",
