@@ -1,11 +1,10 @@
-import { createServer, Server, IncomingMessage, ServerResponse } from "http";
+import fs from "fs";
+import { createServer, IncomingMessage, Server, ServerResponse } from "http";
+import net from "net";
 import open from "open";
 import path from "path";
-import { fileURLToPath } from "url";
-import net from "net";
+import { fileURLToPath, parse as parseUrl } from "url";
 import { twentyFirstClient } from "./http-client.js";
-import fs from "fs";
-import { parse as parseUrl } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -203,6 +202,55 @@ export class CallbackServer {
         }
       } catch (error: any) {
         console.error("Error proxying /fix-code-error:", error);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            status: "error",
+            message: error.message || "Internal Server Error",
+          })
+        );
+      }
+      return;
+    }
+
+    // Handle host-component route
+    if (req.method === "POST" && pathname.startsWith("/host-component")) {
+      const body = await this.parseBodyJson(req);
+      const { code } = body;
+
+      if (!code) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            status: "error",
+            message: "Missing code param in request body",
+          })
+        );
+        return;
+      }
+
+      try {
+        const response = await twentyFirstClient.post<{ url: string }>(
+          "/api/host-component",
+          { code }
+        );
+
+        if (response.status === 200) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ status: "success", data: response.data }));
+        } else {
+          res.writeHead(response.status, {
+            "Content-Type": "application/json",
+          });
+          res.end(
+            JSON.stringify({
+              status: "error",
+              message: response.data || "API Error",
+            })
+          );
+        }
+      } catch (error: any) {
+        console.error("Error proxying /host-component:", error);
         res.writeHead(500, { "Content-Type": "application/json" });
         res.end(
           JSON.stringify({

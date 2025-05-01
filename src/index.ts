@@ -3,12 +3,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
-import { config } from "./utils/config.js";
 import { setupJsonConsole } from "./utils/console.js";
 
 import { CreateUiTool } from "./tools/create-ui.js";
-import { LogoSearchTool } from "./tools/logo-search.js";
 import { FetchUiTool } from "./tools/fetch-ui.js";
+import { LogoSearchTool } from "./tools/logo-search.js";
 import { RefineUiTool } from "./tools/refine-ui.js";
 
 setupJsonConsole();
