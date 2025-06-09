@@ -103,7 +103,7 @@ export class CallbackServer {
   }
 
   async waitForCallback(config: CallbackServerConfig = {}): Promise<CallbackResponse> {
-    const { timeout = 300000 } = config;
+    const { timeout = 600000 } = config;
 
     try {
       this.port = await this.findAvailablePort(this.port);
