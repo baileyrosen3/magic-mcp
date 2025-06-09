@@ -35,78 +35,31 @@ export class CreateUiTool extends BaseTool {
     absolutePathToProjectDirectory: z
       .string()
       .describe("Absolute path to the project root directory"),
-    context: z
+    standaloneRequestQuery: z
       .string()
       .describe(
-        "Extract additional context about what should be done to create a ui component/page based on the user's message, search query, and conversation history, files. Don't halucinate and be on point."
+        "You need to formulate what component user wants to create, based on his message, possbile chat histroy and a place where he makes the request.Extract additional context about what should be done to create a ui component/page based on the user's message, search query, and conversation history, files. Don't halucinate and be on point."
       ),
   });
 
   async execute({
-    message,
-    searchQuery,
-    absolutePathToCurrentFile,
-    context,
+    standaloneRequestQuery
   }: z.infer<typeof this.schema>): Promise<{
     content: Array<{ type: "text"; text: string }>;
   }> {
     try {
-      const response = await twentyFirstClient.post<{
-        data1: { text: string };
-        data2: { text: string };
-        data3: { text: string };
-      }>("/api/create-ui-variation", {
-        message,
-        searchQuery,
-        fileContent: await getContentOfFile(absolutePathToCurrentFile),
-        context,
-      });
-
-      if (response.status !== 200) {
-        open("https://21st.dev/settings/billing");
-        return {
-          content: [
-            {
-              type: "text" as const,
-              // @ts-ignore
-              text: response.data.text as string,
-            },
-          ],
-        };
-      }
-
       const server = new CallbackServer();
-      const { data } = await server.promptUser({
-        initialData: {
-          data1: response.data.data1,
-          data2: response.data.data2,
-          data3: response.data.data3,
-        },
-      });
+      const callbackPromise = server.waitForCallback();
+      const port = server.getPort();
 
-      const componentData = data || {
-        text: "No component data received. Please try again.",
-      };
+      open(`http://localhost:3000/magic-chat?q=${encodeURIComponent(standaloneRequestQuery)}&mcp=true&port=${port}`);
 
-      const responseToUser = `
-${"```tsx"}      
-${componentData.code}
-${"```"}      
+      const { data } = await callbackPromise;
 
+      const prompt = data || "// No component data received. Please try again.";
 
-You're provided with a code snippet for a UI component. Your task is to integrate it into user's codebase.
-Don't change the code of this component, just add it, integrate it, make sure that you add all imports, if you have missing ui components from this code -use shadcn/ui for imports.
-
-
-### Styling instructions
-Check your globals.css and tailwind.config.js for brand color variables
-Replace hardcoded colors with your brand color variables where appropriate
-Example: replace 'bg-blue-500' with 'bg-brand' if you have brand colors defined
-
-## Integration instructions
-Make sure all required dependencies are installed
-Check component's TypeScript types match your project's conventions
-Verify all imported components and utilities exist in your project
+      const responseToUser = ` 
+${prompt}
 
 ## Shadcn/ui instructions
 After you add the component, make sure to add the component to the project. If you can't resolve components from demo code,
@@ -124,10 +77,7 @@ ${"```"}
 then run this command:
 ${"```bash"}
 npx shadcn@latest add table textarea
-${"```"}
-
-
-      `;
+${"```"}`;
 
       return {
         content: [

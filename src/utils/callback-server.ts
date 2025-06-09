@@ -1,274 +1,82 @@
-import fs from "fs";
 import { createServer, IncomingMessage, Server, ServerResponse } from "http";
 import net from "net";
-import open from "open";
-import path from "path";
-import { fileURLToPath, parse as parseUrl } from "url";
-import { twentyFirstClient } from "./http-client.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface CallbackResponse {
   data?: any;
 }
 
 export interface CallbackServerConfig {
-  initialData?: any;
   timeout?: number;
 }
 
 export class CallbackServer {
   private server: Server | null = null;
   private port: number;
-  private sessionId = Math.random().toString(36).substring(7);
   private timeoutId?: NodeJS.Timeout;
-  private mimeTypes: Record<string, string> = {
-    ".html": "text/html",
-    ".js": "text/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".png": "image/png",
-    ".jpg": "image/jpg",
-    ".gif": "image/gif",
-    ".ico": "image/x-icon",
-  };
+  private promiseResolve?: (value: CallbackResponse) => void;
+  private promiseReject?: (reason: any) => void;
 
-  constructor(port = 3333) {
+  constructor(port = 9221) {
     this.port = port;
   }
 
-  private parseBodyJson(req: IncomingMessage): Promise<any> {
+  getPort(): number {
+    return this.port;
+  }
+
+  private async findAvailablePort(startPort: number, maxAttempts = 10): Promise<number> {
+    for (let i = 0; i < maxAttempts; i++) {
+      const port = startPort + i;
+      if (await this.isPortAvailable(port)) {
+        return port;
+      }
+    }
+    throw new Error(`No available port found in range ${startPort}-${startPort + maxAttempts - 1}`);
+  }
+
+  private parseBody(req: IncomingMessage): Promise<string> {
     return new Promise((resolve) => {
       let body = "";
       req.on("data", (chunk) => {
         body += chunk.toString();
       });
       req.on("end", () => {
-        try {
-          const data = body ? JSON.parse(body) : {};
-          resolve(data);
-        } catch (e) {
-          resolve({});
-        }
+        resolve(body);
       });
     });
   }
 
-  private getRouteParams(
-    url: string,
-    pattern: string
-  ): Record<string, string> | null {
-    const urlParts = url.split("/").filter(Boolean);
-    const patternParts = pattern.split("/").filter(Boolean);
-
-    if (urlParts.length !== patternParts.length) return null;
-
-    const params: Record<string, string> = {};
-
-    for (let i = 0; i < patternParts.length; i++) {
-      if (patternParts[i].startsWith(":")) {
-        const paramName = patternParts[i].substring(1);
-        params[paramName] = urlParts[i];
-      } else if (patternParts[i] !== urlParts[i]) {
-        return null;
-      }
-    }
-
-    return params;
-  }
-
-  private async serveStatic(res: ServerResponse, filepath: string) {
-    try {
-      const stat = await fs.promises.stat(filepath);
-
-      if (stat.isDirectory()) {
-        filepath = path.join(filepath, "index.html");
-      }
-
-      const ext = path.extname(filepath);
-      const contentType = this.mimeTypes[ext] || "application/octet-stream";
-
-      const content = await fs.promises.readFile(filepath);
-
-      res.writeHead(200, { "Content-Type": contentType });
-      res.end(content, "utf-8");
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-        const previewerPath = path.join(__dirname, "../previewer");
-        const indexPath = path.join(previewerPath, "index.html");
-
-        if (filepath !== indexPath) {
-          await this.serveStatic(res, indexPath);
-        } else {
-          res.writeHead(404);
-          res.end("Not found");
-        }
-      } else {
-        res.writeHead(500);
-        res.end("Internal server error");
-      }
-    }
-  }
-
   private handleRequest = async (req: IncomingMessage, res: ServerResponse) => {
-    const urlInfo = parseUrl(req.url || "/");
-    const pathname = urlInfo.pathname || "/";
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Handle callback route
-    if (req.method === "GET" && pathname.startsWith("/callback/")) {
-      const params = this.getRouteParams(pathname, "/callback/:id");
-      if (params && params.id === this.sessionId) {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({ status: "success", data: this.config?.initialData })
-        );
-        return;
-      } else {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({ status: "error", message: "Session not found" })
-        );
-        return;
-      }
+    if (req.method === "OPTIONS") {
+      res.writeHead(200);
+      res.end();
+      return;
     }
 
-    // Handle callback post
-    if (req.method === "POST" && pathname.startsWith("/callback/")) {
-      const params = this.getRouteParams(pathname, "/callback/:id");
-      if (params && params.id === this.sessionId && this.promiseResolve) {
+    if (req.method === "POST" && req.url === "/data") {
+      const body = await this.parseBody(req);
+      
+      if (this.promiseResolve) {
         if (this.timeoutId) clearTimeout(this.timeoutId);
-
-        const body = await this.parseBodyJson(req);
-        this.promiseResolve({ data: body || {} });
+        
+        this.promiseResolve({ data: body });
         this.shutdown();
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ status: "success" }));
-        return;
+        res.writeHead(200, { "Content-Type": "text/plain" });
+        res.end("success");
       } else {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({ status: "error", message: "Session not found" })
-        );
-        return;
-      }
-    }
-
-    // Handle fix-code-error route
-    if (req.method === "POST" && pathname.startsWith("/fix-code-error/")) {
-      const params = this.getRouteParams(pathname, "/fix-code-error/:id");
-      if (!params || params.id !== this.sessionId) {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({ status: "error", message: "Session not found" })
-        );
-        return;
-      }
-
-      const body = await this.parseBodyJson(req);
-      const { code, errorMessage } = body;
-
-      if (!code || !errorMessage) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            status: "error",
-            message: "Missing code or errorMessage",
-          })
-        );
-        return;
-      }
-
-      try {
-        const response = await twentyFirstClient.post<{ fixedCode: string }>(
-          "/api/fix-code-error",
-          { code, errorMessage }
-        );
-
-        if (response.status === 200) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ status: "success", data: response.data }));
-        } else {
-          res.writeHead(response.status, {
-            "Content-Type": "application/json",
-          });
-          res.end(
-            JSON.stringify({
-              status: "error",
-              message: response.data || "API Error",
-            })
-          );
-        }
-      } catch (error: any) {
-        console.error("Error proxying /fix-code-error:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            status: "error",
-            message: error.message || "Internal Server Error",
-          })
-        );
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end("Server not ready");
       }
       return;
     }
 
-    // Handle host-component route
-    if (req.method === "POST" && pathname.startsWith("/host-component")) {
-      const body = await this.parseBodyJson(req);
-      const { code } = body;
-
-      if (!code) {
-        res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            status: "error",
-            message: "Missing code param in request body",
-          })
-        );
-        return;
-      }
-
-      try {
-        const response = await twentyFirstClient.post<{ url: string }>(
-          "/api/host-component",
-          { code }
-        );
-
-        if (response.status === 200) {
-          res.writeHead(200, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ status: "success", data: response.data }));
-        } else {
-          res.writeHead(response.status, {
-            "Content-Type": "application/json",
-          });
-          res.end(
-            JSON.stringify({
-              status: "error",
-              message: response.data || "API Error",
-            })
-          );
-        }
-      } catch (error: any) {
-        console.error("Error proxying /host-component:", error);
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            status: "error",
-            message: error.message || "Internal Server Error",
-          })
-        );
-      }
-      return;
-    }
-
-    // Serve static files or send index.html
-    const previewerPath = path.join(__dirname, "../previewer");
-    const filePath = path.join(
-      previewerPath,
-      pathname === "/" ? "index.html" : pathname
-    );
-    await this.serveStatic(res, filePath);
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not found");
   };
 
   private async shutdown(): Promise<void> {
@@ -294,31 +102,14 @@ export class CallbackServer {
     });
   }
 
-  private async findAvailablePort(): Promise<number> {
-    let port = this.port;
-    for (let attempt = 0; attempt < 100; attempt++) {
-      if (await this.isPortAvailable(port)) {
-        return port;
-      }
-      port++;
-    }
-    throw new Error("Unable to find an available port after 100 attempts");
-  }
-
-  private config?: CallbackServerConfig;
-  private promiseResolve?: (value: CallbackResponse) => void;
-  private promiseReject?: (reason: any) => void;
-
-  async promptUser(
-    config: CallbackServerConfig = {}
-  ): Promise<CallbackResponse> {
-    const { initialData = null, timeout = 300000 } = config;
-    this.config = config;
+  async waitForCallback(config: CallbackServerConfig = {}): Promise<CallbackResponse> {
+    const { timeout = 300000 } = config;
 
     try {
-      const availablePort = await this.findAvailablePort();
+      this.port = await this.findAvailablePort(this.port);
+
       this.server = createServer(this.handleRequest);
-      this.server.listen(availablePort, "127.0.0.1");
+      this.server.listen(this.port, "127.0.0.1");
 
       return new Promise<CallbackResponse>((resolve, reject) => {
         this.promiseResolve = resolve;
@@ -338,13 +129,7 @@ export class CallbackServer {
           this.shutdown();
         }, timeout);
 
-        const url = `http://127.0.0.1:${availablePort}?id=${this.sessionId}`;
-
-        open(url).catch((error) => {
-          console.warn("Failed to open browser:", error);
-          resolve({ data: { browserOpenFailed: true } });
-          this.shutdown();
-        });
+        console.log(`Callback server listening on http://127.0.0.1:${this.port}/data`);
       });
     } catch (error) {
       await this.shutdown();
