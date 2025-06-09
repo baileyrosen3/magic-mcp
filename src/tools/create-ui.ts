@@ -52,7 +52,7 @@ export class CreateUiTool extends BaseTool {
       const callbackPromise = server.waitForCallback();
       const port = server.getPort();
 
-      open(`http://localhost:3000/magic-chat?q=${encodeURIComponent(standaloneRequestQuery)}&mcp=true&port=${port}`);
+      open(`http://21st.dev/magic-chat?q=${encodeURIComponent(standaloneRequestQuery)}&mcp=true&port=${port}`);
 
       const { data } = await callbackPromise;
 
