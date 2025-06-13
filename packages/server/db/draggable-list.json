@@ -1,0 +1,20 @@
+{
+  "id": "draggable-list",
+  "name": "Draggable List",
+  "description": "A reorderable list component with drag and drop functionality.",
+  "framework": "react",
+  "library": "hextaui",
+  "tags": [
+    "application",
+    "component",
+    "drag",
+    "draggable",
+    "drop",
+    "functionality",
+    "list",
+    "reorderable"
+  ],
+  "code": "// Path: ui/draggable-list.tsx\n\n\"use client\";\r\n \r\nimport React, { useState } from \"react\";\r\nimport { motion, AnimatePresence } from \"motion/react\";\r\nimport { twMerge } from \"tailwind-merge\";\r\nimport clsx from \"clsx\";\r\n \r\nconst cn = (...args: any[]) => {\r\n  return twMerge(clsx(args));\r\n};\r\n \r\nexport interface DraggableItemProps {\r\n  id: string;\r\n  content: React.JSX.Element;\r\n}\r\n \r\nexport interface DraggableListProps {\r\n  items: DraggableItemProps[];\r\n  onChange?: (items: DraggableItemProps[]) => void;\r\n  className?: string;\r\n}\r\n \r\nexport const DraggableList: React.FC<DraggableListProps> = ({\r\n  items: initialItems,\r\n  onChange,\r\n  className,\r\n}) => {\r\n  const [items, setItems] = useState(initialItems);\r\n  const [draggedItem, setDraggedItem] = useState<DraggableItemProps | null>(\r\n    null\r\n  );\r\n  const [dragOverItemId, setDragOverItemId] = useState<string | number | null>(\r\n    null\r\n  );\r\n \r\n  const handleDragStart = (item: DraggableItemProps) => {\r\n    setDraggedItem(item);\r\n  };\r\n \r\n  const handleDragOver = (e: React.DragEvent, itemId: string | number) => {\r\n    e.preventDefault();\r\n    setDragOverItemId(itemId);\r\n  };\r\n \r\n  const handleDragEnd = () => {\r\n    if (!draggedItem || !dragOverItemId) {\r\n      setDraggedItem(null);\r\n      setDragOverItemId(null);\r\n      return;\r\n    }\r\n \r\n    const newItems = [...items];\r\n    const draggedIndex = items.findIndex((item) => item.id === draggedItem.id);\r\n    const dropIndex = items.findIndex((item) => item.id === dragOverItemId);\r\n \r\n    newItems.splice(draggedIndex, 1);\r\n    newItems.splice(dropIndex, 0, draggedItem);\r\n \r\n    setItems(newItems);\r\n    onChange?.(newItems);\r\n    setDraggedItem(null);\r\n    setDragOverItemId(null);\r\n  };\r\n \r\n  return (\r\n    <div className={cn(\"flex flex-col gap-2\", className)}>\r\n      <AnimatePresence>\r\n        {items.map((item) => (\r\n          <motion.div\r\n            key={item.id}\r\n            layout\r\n            initial={{ opacity: 0, y: 20 }}\r\n            animate={{ opacity: 1, y: 0 }}\r\n            exit={{ opacity: 0, y: -20 }}\r\n            transition={{ duration: 0.2 }}\r\n            draggable\r\n            onDragStart={() => handleDragStart(item)}\r\n            onDragOver={(e) => handleDragOver(e, item.id)}\r\n            onDragEnd={handleDragEnd}\r\n            className={cn(\r\n              \"cursor-grab rounded-lg border bg-secondary/50 border-primary/10 p-4 shadow-xs transition-colors\",\r\n              dragOverItemId === item.id &&\r\n                \"border-2 border-orange bg-secondary/40\",\r\n              draggedItem?.id === item.id &&\r\n                \"border-2 border-gray-400 opacity-50\"\r\n            )}\r\n          >\r\n            {item.content}\r\n          </motion.div>\r\n        ))}\r\n      </AnimatePresence>\r\n    </div>\r\n  );\r\n};\r\n \r\nexport const DraggableItem: React.FC<{\r\n  children: React.ReactNode;\r\n  className?: string;\r\n}> = ({ children, className }) => {\r\n  return (\r\n    <div className={cn(\"flex items-center gap-2\", className)}>\r\n      <div className=\"text-gray-400\">≡</div>\r\n      {children}\r\n    </div>\r\n  );\r\n};",
+  "createdAt": "2025-06-12T15:33:26.692Z",
+  "updatedAt": "2025-06-12T15:33:26.692Z"
+}

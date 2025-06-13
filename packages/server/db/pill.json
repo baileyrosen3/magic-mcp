@@ -1,0 +1,20 @@
+{
+  "id": "pill",
+  "name": "Pill",
+  "description": "A flexible badge component designed for a variety of use cases.",
+  "framework": "react",
+  "library": "kibo-ui",
+  "tags": [
+    "badge",
+    "cases",
+    "component",
+    "designed",
+    "flexible",
+    "pill",
+    "use",
+    "variety"
+  ],
+  "code": "// Path: ui/avatar.tsx\n\n\"use client\"\n\nimport * as React from \"react\"\nimport * as AvatarPrimitive from \"@radix-ui/react-avatar\"\n\nimport { cn } from \"@/utils\"\n\nfunction Avatar({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Root>) {\n  return (\n    <AvatarPrimitive.Root\n      data-slot=\"avatar\"\n      className={cn(\n        \"relative flex size-8 shrink-0 overflow-hidden rounded-full\",\n        className\n      )}\n      {...props}\n    />\n  )\n}\n\nfunction AvatarImage({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Image>) {\n  return (\n    <AvatarPrimitive.Image\n      data-slot=\"avatar-image\"\n      className={cn(\"aspect-square size-full\", className)}\n      {...props}\n    />\n  )\n}\n\nfunction AvatarFallback({\n  className,\n  ...props\n}: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {\n  return (\n    <AvatarPrimitive.Fallback\n      data-slot=\"avatar-fallback\"\n      className={cn(\n        \"bg-muted flex size-full items-center justify-center rounded-full\",\n        className\n      )}\n      {...props}\n    />\n  )\n}\n\nexport { Avatar, AvatarImage, AvatarFallback }",
+  "createdAt": "2025-06-12T15:50:25.078Z",
+  "updatedAt": "2025-06-12T15:50:25.078Z"
+}

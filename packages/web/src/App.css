@@ -1,0 +1,119 @@
+body {
+  background-color: #111;
+  color: white;
+}
+
+.App {
+  text-align: center;
+}
+
+.App-header {
+  background-color: #1a1a1a;
+  padding: 20px;
+  color: white;
+  border-bottom: 1px solid #333;
+}
+
+.component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.component-card {
+  border: 1px solid #333;
+  background-color: #1a1a1a;
+  padding: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+}
+
+.component-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border-color: #555;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  padding: 0;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative;
+  text-align: left;
+  color: #eee;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #333;
+}
+
+.modal-title h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.modal-title p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+.modal-actions button {
+  background: #333;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.modal-actions button:hover {
+  background: #444;
+}
+
+.modal-body {
+  padding: 20px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #eee;
+}

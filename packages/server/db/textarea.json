@@ -1,0 +1,19 @@
+{
+  "id": "textarea",
+  "name": "Textarea",
+  "description": "Displays a form textarea or a component that looks like a textarea.",
+  "framework": "react",
+  "library": "neobrutalism",
+  "tags": [
+    "component",
+    "displays",
+    "form",
+    "like",
+    "looks",
+    "textarea",
+    "that"
+  ],
+  "code": "// Path: ui/textarea.tsx\n\nimport * as React from \"react\"\r\n\r\nimport { cn } from \"@/utils\"\r\n\r\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\r\n  return (\r\n    <textarea\r\n      data-slot=\"textarea\"\r\n      className={cn(\r\n        \"flex min-h-[80px] w-full rounded-base border-2 border-border bg-secondary-background selection:bg-main selection:text-main-foreground px-3 py-2 text-sm font-base text-foreground placeholder:text-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    />\r\n  )\r\n}\r\n\r\nexport { Textarea }",
+  "createdAt": "2025-06-12T15:56:25.303Z",
+  "updatedAt": "2025-06-12T15:56:25.303Z"
+}

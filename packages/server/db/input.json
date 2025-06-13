@@ -1,0 +1,20 @@
+{
+  "id": "input",
+  "name": "Input",
+  "description": "Displays a form input field or a component that looks like an input field.",
+  "framework": "react",
+  "library": "neobrutalism",
+  "tags": [
+    "component",
+    "displays",
+    "field",
+    "form",
+    "input",
+    "like",
+    "looks",
+    "that"
+  ],
+  "code": "// Path: ui/input.tsx\n\nimport * as React from \"react\"\r\n\r\nimport { cn } from \"@/utils\"\r\n\r\nfunction Input({ className, type, ...props }: React.ComponentProps<\"input\">) {\r\n  return (\r\n    <input\r\n      type={type}\r\n      data-slot=\"input\"\r\n      className={cn(\r\n        \"flex h-10 w-full rounded-base border-2 border-border bg-secondary-background selection:bg-main selection:text-main-foreground px-3 py-2 text-sm font-base text-foreground file:border-0 file:bg-transparent file:text-sm file:font-heading placeholder:text-foreground/50 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    />\r\n  )\r\n}\r\n\r\nexport { Input }",
+  "createdAt": "2025-06-12T15:55:32.008Z",
+  "updatedAt": "2025-06-12T15:55:32.008Z"
+}

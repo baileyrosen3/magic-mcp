@@ -1,0 +1,20 @@
+{
+  "id": "animated-gradient-text",
+  "name": "Animated Gradient Text",
+  "description": "An animated gradient background which transitions between colors for text.",
+  "framework": "react",
+  "library": "magic-ui",
+  "tags": [
+    "animated",
+    "background",
+    "between",
+    "colors",
+    "gradient",
+    "text",
+    "transitions",
+    "which"
+  ],
+  "code": "// Path: magicui/animated-gradient-text.tsx\n\nimport { cn } from \"@/utils\";\nimport { ComponentPropsWithoutRef } from \"react\";\n\nexport interface AnimatedGradientTextProps\n  extends ComponentPropsWithoutRef<\"div\"> {\n  speed?: number;\n  colorFrom?: string;\n  colorTo?: string;\n}\n\nexport function AnimatedGradientText({\n  children,\n  className,\n  speed = 1,\n  colorFrom = \"#ffaa40\",\n  colorTo = \"#9c40ff\",\n  ...props\n}: AnimatedGradientTextProps) {\n  return (\n    <span\n      style={\n        {\n          \"--bg-size\": `${speed * 300}%`,\n          \"--color-from\": colorFrom,\n          \"--color-to\": colorTo,\n        } as React.CSSProperties\n      }\n      className={cn(\n        `inline animate-gradient bg-gradient-to-r from-[var(--color-from)] via-[var(--color-to)] to-[var(--color-from)] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`,\n        className,\n      )}\n      {...props}\n    >\n      {children}\n    </span>\n  );\n}",
+  "createdAt": "2025-06-12T15:36:31.213Z",
+  "updatedAt": "2025-06-12T15:36:31.213Z"
+}

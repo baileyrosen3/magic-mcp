@@ -1,0 +1,19 @@
+{
+  "id": "image-card",
+  "name": "Image Card",
+  "description": "A card component optimized for displaying images with captions.",
+  "framework": "react",
+  "library": "neobrutalism",
+  "tags": [
+    "captions",
+    "card",
+    "component",
+    "displaying",
+    "image",
+    "images",
+    "optimized"
+  ],
+  "code": "// Path: ui/image-card.tsx\n\nimport { cn } from \"@/utils\"\r\n\r\ntype Props = {\r\n  imageUrl: string\r\n  caption: string\r\n  className?: string\r\n}\r\n\r\nexport default function ImageCard({ imageUrl, caption, className }: Props) {\r\n  return (\r\n    <figure\r\n      className={cn(\r\n        \"w-[250px] overflow-hidden rounded-base border-2 border-border bg-main font-base shadow-shadow\",\r\n        className,\r\n      )}\r\n    >\r\n      <img className=\"w-full aspect-4/3\" src={imageUrl} alt=\"image\" />\r\n      <figcaption className=\"border-t-2 text-main-foreground border-border p-4\">\r\n        {caption}\r\n      </figcaption>\r\n    </figure>\r\n  )\r\n}",
+  "createdAt": "2025-06-12T15:41:00.187Z",
+  "updatedAt": "2025-06-12T15:41:00.187Z"
+}

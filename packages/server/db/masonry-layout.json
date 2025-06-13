@@ -1,0 +1,26 @@
+{
+  "id": "masonry-layout",
+  "name": "Masonry Layout",
+  "description": "The Masonry Layout is a grid layout that arranges items in a way that optimizes space and creates a visually appealing design.",
+  "framework": "react",
+  "library": "hextaui",
+  "tags": [
+    "appealing",
+    "application",
+    "arranges",
+    "creates",
+    "design",
+    "grid",
+    "items",
+    "layout",
+    "masonry",
+    "optimizes",
+    "space",
+    "that",
+    "visually",
+    "way"
+  ],
+  "code": "// Path: ui/responsive-masonry-layout.tsx\n\n\"use client\";\n\nimport React from \"react\";\n\ninterface MasonryProps {\n  children: React.ReactNode[];\n  className?: string;\n}\n\nconst Masonry = ({ children, className = \"\" }: MasonryProps) => {\n  return (\n    <div\n      className={`\n        columns-1 \n        sm:columns-2 \n        md:columns-3 \n        lg:columns-4 \n        xl:columns-5 \n        gap-4 \n        space-y-4 \n        ${className}\n      `}\n    >\n      {children.map((child, index) => (\n        <div key={index} className=\"break-inside-avoid mb-4\">\n          {child}\n        </div>\n      ))}\n    </div>\n  );\n};\n\nexport {Masonry};",
+  "createdAt": "2025-06-12T15:33:43.408Z",
+  "updatedAt": "2025-06-12T15:33:43.408Z"
+}

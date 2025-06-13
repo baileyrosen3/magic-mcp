@@ -1,17 +1,4 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "types": ["node", "jest"]
-  },
-  "include": ["src/**/*", "preview-build"],
-  "exclude": ["node_modules", "dist"]
+  "files": [],
+  "references": [{ "path": "packages/client" }, { "path": "packages/server" }]
 }

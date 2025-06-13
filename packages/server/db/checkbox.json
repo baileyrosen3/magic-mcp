@@ -1,0 +1,20 @@
+{
+  "id": "checkbox",
+  "name": "Checkbox",
+  "description": "A control that allows the user to toggle between checked and not checked.",
+  "framework": "react",
+  "library": "neobrutalism",
+  "tags": [
+    "allows",
+    "between",
+    "checkbox",
+    "checked",
+    "control",
+    "that",
+    "toggle",
+    "user"
+  ],
+  "code": "// Path: ui/checkbox.tsx\n\n\"use client\"\r\n\r\nimport * as CheckboxPrimitive from \"@radix-ui/react-checkbox\"\r\nimport { Check } from \"lucide-react\"\r\n\r\nimport * as React from \"react\"\r\n\r\nimport { cn } from \"@/utils\"\r\n\r\nfunction Checkbox({\r\n  className,\r\n  ...props\r\n}: React.ComponentProps<typeof CheckboxPrimitive.Root>) {\r\n  return (\r\n    <CheckboxPrimitive.Root\r\n      data-slot=\"checkbox\"\r\n      className={cn(\r\n        \"peer size-4 shrink-0 outline-2 outline-border ring-offset-white focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-main data-[state=checked]:text-white\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    >\r\n      <CheckboxPrimitive.Indicator\r\n        data-slot=\"checkbox-indicator\"\r\n        className={cn(\"flex items-center justify-center text-current\")}\r\n      >\r\n        <Check className=\"size-4 text-main-foreground\" />\r\n      </CheckboxPrimitive.Indicator>\r\n    </CheckboxPrimitive.Root>\r\n  )\r\n}\r\n\r\nexport { Checkbox }",
+  "createdAt": "2025-06-12T15:55:05.248Z",
+  "updatedAt": "2025-06-12T15:55:05.248Z"
+}

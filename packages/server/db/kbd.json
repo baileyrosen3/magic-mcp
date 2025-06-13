@@ -1,0 +1,19 @@
+{
+  "id": "kbd",
+  "name": "Kbd",
+  "description": "A component for displaying keyboard shortcuts and key combinations.",
+  "framework": "react",
+  "library": "kibo-ui",
+  "tags": [
+    "combinations",
+    "component",
+    "displaying",
+    "kbd",
+    "key",
+    "keyboard",
+    "shortcuts"
+  ],
+  "code": "// Path: ui/kibo-ui/kbd/index.tsx\n\nimport { cn } from '@/utils';\nimport { type ComponentProps, Fragment, type ReactNode } from 'react';\nimport type { Key } from 'ts-key-enum';\n\nconst DefaultKbdSeparator = ({\n  className,\n  children = '+',\n  ...props\n}: ComponentProps<'span'>) => (\n  <span className={cn('text-muted-foreground/50', className)} {...props}>\n    {children}\n  </span>\n);\n\nexport type KbdProps = ComponentProps<'span'> & {\n  separator?: ReactNode;\n};\n\nexport const Kbd = ({\n  className,\n  separator = <DefaultKbdSeparator />,\n  children,\n  ...props\n}: KbdProps) => (\n  <span\n    className={cn(\n      'inline-flex select-none items-center gap-1 rounded border bg-muted px-1.5 align-middle font-medium font-mono text-[10px] text-muted-foreground leading-loose',\n      className\n    )}\n    {...props}\n  >\n    {Array.isArray(children)\n      ? children.map((child, index) => (\n          <Fragment key={index}>\n            {child}\n            {index < children.length - 1 && separator}\n          </Fragment>\n        ))\n      : children}\n  </span>\n);\n\nexport type KbdKeyProps = Omit<ComponentProps<'kbd'>, 'aria-label'> & {\n  'aria-label'?: keyof typeof Key | (string & {});\n};\n\nexport const KbdKey = ({ className, ...props }: KbdKeyProps) => (\n  <kbd {...props} />\n);",
+  "createdAt": "2025-06-12T15:35:36.154Z",
+  "updatedAt": "2025-06-12T15:35:36.154Z"
+}

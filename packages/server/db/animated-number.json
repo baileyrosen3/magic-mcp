@@ -1,0 +1,17 @@
+{
+  "id": "animated-number",
+  "name": "Animated Number",
+  "description": "Easily animate numbers.",
+  "framework": "react",
+  "library": "motion-primitives",
+  "tags": [
+    "animate",
+    "animated",
+    "easily",
+    "number",
+    "numbers"
+  ],
+  "code": "// Path: ui/animated-number.tsx\n\n'use client';\nimport { cn } from '@/utils';\nimport { motion, SpringOptions, useSpring, useTransform } from 'motion/react';\nimport { useEffect } from 'react';\n\nexport type AnimatedNumberProps = {\n  value: number;\n  className?: string;\n  springOptions?: SpringOptions;\n  as?: React.ElementType;\n};\n\nexport function AnimatedNumber({\n  value,\n  className,\n  springOptions,\n  as = 'span',\n}: AnimatedNumberProps) {\n  const MotionComponent = motion.create(as as keyof JSX.IntrinsicElements);\n\n  const spring = useSpring(value, springOptions);\n  const display = useTransform(spring, (current) =>\n    Math.round(current).toLocaleString()\n  );\n\n  useEffect(() => {\n    spring.set(value);\n  }, [spring, value]);\n\n  return (\n    <MotionComponent className={cn('tabular-nums', className)}>\n      {display}\n    </MotionComponent>\n  );\n}",
+  "createdAt": "2025-06-12T15:53:25.609Z",
+  "updatedAt": "2025-06-12T15:53:25.609Z"
+}
